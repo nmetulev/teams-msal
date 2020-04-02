@@ -1,31 +1,10 @@
 
 import {UserAgentApplication} from "msal";
-
-// STATE
-
-let app = document.querySelector('.app');
-
-const msalConfig = {
-    auth: {
-        clientId: "a974dfa0-9f57-49b9-95db-90f04ce2111a",
-    },
-    cache: {
-        cacheLocation: "localStorage"
-    }
-};
-const scopes = ['user.read'];
-
-const msalApp = new UserAgentApplication(msalConfig);
-msalApp.handleRedirectCallback((response) => handleTokenReceived(response), (error, state) => handleErrorReceived(error, state));
-
-
-
-
-
+import {scopes, msalConfig} from './env.js';
 
 // UI
 
-const renderSignIn = () => {
+const renderSignedOutView = () => {
     app.innerHTML = `<button>Sign In</button>`;
     app.querySelector('button').addEventListener('click', () => signInClicked());
 }
@@ -36,6 +15,15 @@ const renderUser = (user) => {
     </div>`
 }
 
+const renderLoading = () => {
+    app.innerHTML = `<div>Loading</div>`;
+}
+
+const renderError = (error) => {
+    const errorDiv = document.createElement('div');
+    errorDiv.innerText = JSON.stringify(error);
+    app.appendChild(errorDiv);
+}
 
 const signInClicked = () => {
     signIn();
@@ -46,10 +34,10 @@ const signInClicked = () => {
 
 
 
-
 // AUTH
 
 const attemptSilentSignIn = () => {
+    renderLoading();
     if (msalApp.getAccount()) {
         msalApp.acquireTokenSilent({scopes}).then((response) => {
             if (response && response.accessToken) {
@@ -67,14 +55,14 @@ const attemptSilentSignIn = () => {
 }
 
 const signIn = () => {
-
-    microsoftTeams.initialize();
-    microsoftTeams.authentication.authenticate({
-        url: window.location.origin + "/auth.html",
-        successCallback: () => attemptSilentSignIn(),
-        failureCallback: (error) => handleSignedOut(error)
-    })
-
+    renderLoading();
+    microsoftTeams.initialize(() => {
+        microsoftTeams.authentication.authenticate({
+            url: window.location.origin + "/auth.html",
+            successCallback: () => attemptSilentSignIn(),
+            failureCallback: (error) => renderError(error)
+        })
+    });
 }
 
 const handleSignedIn = (accessToken) => {
@@ -94,24 +82,17 @@ const handleSignedIn = (accessToken) => {
     })
 }
 
-const handleSignedOut = (error) => {
-    console.log(error)
-    renderSignIn();
+const handleSignedOut = () => {
+    renderSignedOutView();
 }
 
-const handleErrorReceived = (authError, accountState) => {
-    console.log(authError, accountState);
-    handleSignedOut();
-}
 
-const handleTokenReceived = (response) => {
-    console.log(response);
-    attemptSilentSignIn();
-}
 
 
 
 
 // MAIN
+let app = document.querySelector('.app');
+const msalApp = new UserAgentApplication(msalConfig);
 
 attemptSilentSignIn();

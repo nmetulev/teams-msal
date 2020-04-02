@@ -1,5 +1,8 @@
 
 import {UserAgentApplication} from "msal";
+import {scopes, msalConfig} from './env.js';
+
+
 
 // AUTH
 
@@ -50,28 +53,10 @@ const handleTokenReceived = (response) => {
 
 
 
-// STATE
-
-const msalConfig = {
-    auth: {
-        clientId: "a974dfa0-9f57-49b9-95db-90f04ce2111a",
-    },
-    cache: {
-        cacheLocation: "localStorage"
-    }
-};
-const scopes = ['user.read'];
+// MAIN
 
 const msalApp = new UserAgentApplication(msalConfig);
 msalApp.handleRedirectCallback((response) => handleTokenReceived(response), (error, state) => handleErrorReceived(error, state));
-
-
-
-
-
-
-// MAIN
-
 
 attemptSilentSignIn().then(success => {
     if (success){
