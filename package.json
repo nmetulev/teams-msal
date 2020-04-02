@@ -1,0 +1,15 @@
+{
+  "name": "msalteams",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "es-dev-server --app-index index.html --node-resolve --watch --open --port 3000 --compatibility none"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "es-dev-server": "^1.46.0",
+    "msal": "file:../../microsoft-authentication-library-for-js/lib/msal-core/msal-1.2.2.tgz"
+  }
+}
